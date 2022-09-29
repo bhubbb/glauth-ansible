@@ -8,7 +8,7 @@
 - name: Download and extract glauth
   ansible.builtin.unarchive:
     src: "https://github.com/glauth/glauth/releases/download/v{{ glauth_version }}/linux{{ glauth_arch }}.zip"
-    dest: /usr/local/bin
+    dest: /usr/bin
     remote_src: yes
 
 - name: Create config directory
@@ -19,8 +19,8 @@
     user: glauth
     group: glauth-ui-light
 
-- name: Copy default config
-  ansible.builtin.copy:
+- name: Create glauth config
+  ansible.builtin.template:
     src:  etc_glauth_glauth.conf
     dest: /etc/glauth/glauth.conf
     mode: '0664'
@@ -28,7 +28,7 @@
     group: glauth-ui-light
 
 - name: Copy Systemd service file
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: etc_systemd_system_glauth.service
     dest: /etc/systemd/system/glauth.service
 
@@ -38,7 +38,7 @@
 
 - name: Enable and start glauth service
     ansible.builtin.systemd:
-    name: httpd
+    name: glauth
     enabled: yes
     state: restarted
 

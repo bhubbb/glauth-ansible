@@ -1,0 +1,43 @@
+---
+
+- name: Create caddy user
+  ansible.builtin.user:
+    name: caddy
+
+- name: Download caddy
+  ansible.builtin.get_url:
+    src: "https://caddyserver.com/api/download?os={{ caddy_os }}&arch={{ caddy_arch }}"
+    dest: /usr/bin/caddy
+    mode: "0755"
+
+- name: Create caddy config directory
+  ansible.builtin.file:
+    path: /etc/caddy
+    state: directory
+    mode: '0755'
+    user: caddy
+    group: caddy
+
+- name: Copy caddy config
+  ansible.builtin.template:
+    src:  etc_caddy_Caddyfile
+    dest: /etc/caddy/Caddyfile
+    mode: '0644'
+    user:  caddy
+    group: caddy
+
+- name: Download caddy service file
+  ansible.builtin.get_url:
+    src: "https://raw.githubusercontent.com/caddyserver/dist/master/init/caddy.service"
+    dest: /etc/systemd/system/caddy.service
+
+- name: Reload Systemd service files
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Enable and start caddy service
+    ansible.builtin.systemd:
+    name: caddy
+    enabled: yes
+    state: restarted
+
